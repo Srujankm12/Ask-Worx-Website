@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import Navbar from '@/components/Navbar';
+import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { Shield, Eye, Lock, FileSearch, UserCheck, Trash2, Link2, Bell, Mail, Phone, MapPin, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';

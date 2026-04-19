@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import Navbar from '@/components/Navbar';
+import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { Gavel, Cpu, Globe, Scale, CreditCard, ShieldAlert, Zap, Lock, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';

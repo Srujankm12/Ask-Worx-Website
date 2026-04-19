@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://askworx.vercel.app/sitemap.xml
