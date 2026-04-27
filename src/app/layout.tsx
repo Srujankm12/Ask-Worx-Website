@@ -5,6 +5,7 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import StructuredData from "@/components/StructuredData";
 import { PremiumEffects } from "@/components/PremiumEffects";
+import { FloatingWhatsApp } from "@/components/FloatingWhatsApp";
 
 const inter = Inter({ 
   subsets: ["latin"],
@@ -80,6 +81,7 @@ export default function RootLayout({
           {children}
         </main>
         <Footer />
+        <FloatingWhatsApp />
       </body>
     </html>
   );

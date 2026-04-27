@@ -64,6 +64,20 @@ export default function ContactPage() {
           <div className="lg:col-span-5 space-y-20">
             {/* Action Cards */}
             <div className="grid grid-cols-1 gap-6">
+              <div className="p-8 bg-[#0D0D0D] border border-white/10 rounded-2xl group hover:border-[#25D366]/50 transition-all">
+                <div className="flex items-center gap-6 mb-6">
+                  <div className="w-12 h-12 bg-[#25D366]/20 rounded-xl flex items-center justify-center relative">
+                    <MessageSquare className="w-6 h-6 text-[#25D366]" />
+                    <div className="absolute top-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-[#0D0D0D] animate-pulse" />
+                  </div>
+                  <h4 className="text-lg font-heading font-black text-white uppercase italic tracking-widest">24/7 AI SUPPORT</h4>
+                </div>
+                <p className="text-white/40 text-sm italic mb-8 font-medium">Instant technical assistance and product information via our WhatsApp bot.</p>
+                <a href="https://wa.me/917892943426?text=Hello%20ASKworX%20Support,%20I%20need%20assistance%20with%20your%20industrial%20platform." target="_blank" rel="noopener noreferrer">
+                  <Button className="w-full py-4 text-[10px] tracking-widest font-black uppercase rounded-lg border border-[#25D366]/20 text-[#25D366] hover:bg-[#25D366] hover:text-black transition-all">CHAT WITH BOT →</Button>
+                </a>
+              </div>
+
               <div className="p-8 bg-[#0D0D0D] border border-white/10 rounded-2xl group hover:border-[#1A3D2B] transition-all">
                 <div className="flex items-center gap-6 mb-6">
                   <div className="w-12 h-12 bg-[#1A3D2B]/20 rounded-xl flex items-center justify-center">
