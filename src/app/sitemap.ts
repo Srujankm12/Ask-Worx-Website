@@ -1,8 +1,8 @@
 import { MetadataRoute } from 'next';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://askworx.vercel.app';
-  
+  const baseUrl = 'https://askworx.in';
+
   const routes = [
     '',
     '/products',

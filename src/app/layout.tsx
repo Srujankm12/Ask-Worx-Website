@@ -7,12 +7,12 @@ import StructuredData from "@/components/StructuredData";
 import { PremiumEffects } from "@/components/PremiumEffects";
 import { FloatingWhatsApp } from "@/components/FloatingWhatsApp";
 
-const inter = Inter({ 
+const inter = Inter({
   subsets: ["latin"],
   variable: '--font-body',
 });
 
-const spaceGrotesk = Space_Grotesk({ 
+const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
   variable: '--font-heading',
   weight: ['300', '400', '500', '600', '700'],
@@ -33,19 +33,28 @@ export const metadata: Metadata = {
   authors: [{ name: "ASKworX" }],
   creator: "ASKworX",
   publisher: "ASKworX",
+
+  // ✅ FIX 1: Use your real domain
+  metadataBase: new URL('https://askworx.in'),
+
+  // ✅ FIX 2: Proper canonical URL
+  alternates: {
+    canonical: 'https://askworx.in',
+  },
+
   formatDetection: {
     email: false,
     address: false,
     telephone: false,
   },
-  metadataBase: new URL('https://askworx.vercel.app'),
-  alternates: {
-    canonical: '/',
-  },
+
   openGraph: {
     title: 'ASKworX | Ground to Cloud Automation',
     description: 'Automation that works today. Intelligence that scales tomorrow.',
-    url: 'https://askworx.vercel.app',
+
+    // ✅ FIX 3: Update domain here also
+    url: 'https://askworx.in',
+
     siteName: 'ASKworX',
     images: [
       {
@@ -57,12 +66,14 @@ export const metadata: Metadata = {
     locale: 'en_IN',
     type: 'website',
   },
+
   twitter: {
     card: 'summary_large_image',
     title: 'ASKworX | Ground to Cloud Automation',
     description: 'Automation that works today. Intelligence that scales tomorrow.',
     images: ['/og-image.png'],
   },
+
   robots: 'index, follow',
 };
 
