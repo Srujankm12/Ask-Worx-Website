@@ -5,9 +5,9 @@ export default function StructuredData() {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
     "name": "ASKworX Smart Automation LLP",
-    "image": "https://askworx.vercel.app/og-image.png",
-    "@id": "https://askworx.vercel.app",
-    "url": "https://askworx.vercel.app",
+    "image": "https://askworx.in/og-image.png",
+    "@id": "https://askworx.in",
+    "url": "https://askworx.in",
     "telephone": "+919110804322",
     "address": {
       "@type": "PostalAddress",
