@@ -1,239 +1,297 @@
 "use client";
 
-import React from 'react';
-import { Badge, Button } from '@/components/UI';
-import { motion } from 'framer-motion';
-import {
-  Mail, Phone, MapPin,
-  Settings, Cloud, ShieldCheck,
-  Activity, ArrowRight, Video,
-  Calendar, MessageSquare
-} from 'lucide-react';
-import Image from 'next/image';
-import Link from 'next/link';
+import React, { useActionState, useEffect, useRef } from "react";
+import { useFormStatus } from "react-dom";
+import { Mail, Phone, MapPin, ArrowRight, MessageSquare, Check } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Section } from "@/components/Section";
+import { Reveal, RevealText } from "@/components/motion/Reveal";
+import { company, services } from "@/lib/site";
+import { submitEnquiry, type ContactState, type Field } from "./actions";
+
+const INITIAL: ContactState = { status: "idle" };
+
+function SubmitButton() {
+  const { pending } = useFormStatus();
+  return (
+    <Button type="submit" size="lg" disabled={pending} className="rounded-full px-8">
+      {pending ? "Sending…" : "Send enquiry"}
+      <ArrowRight className="size-4" aria-hidden="true" />
+    </Button>
+  );
+}
 
 export default function ContactPage() {
-  const [formData, setFormData] = React.useState({
-    name: '',
-    company: '',
-    email: '',
-    phone: '',
-    service: '',
-    message: ''
-  });
+  const [state, formAction] = useActionState(submitEnquiry, INITIAL);
+  const formRef = useRef<HTMLFormElement>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const text = `*New Inquiry from ASKworX Website*\n\n*Name:* ${formData.name}\n*Company:* ${formData.company}\n*Email:* ${formData.email}\n*Phone:* ${formData.phone}\n*Service:* ${formData.service}\n\n*Requirements:* ${formData.message}`;
-    const encodedText = encodeURIComponent(text);
-    window.open(`https://wa.me/919030108949?text=${encodedText}`, '_blank');
-  };
+  // Move focus to the first field the server rejected, and clear the form
+  // once the enquiry is away.
+  useEffect(() => {
+    if (state.status === "error" && state.errors) {
+      const first = Object.keys(state.errors)[0] as Field | undefined;
+      if (first) {
+        const el = formRef.current?.elements.namedItem(first);
+        if (el instanceof HTMLElement) el.focus();
+      }
+    }
+    if (state.status === "sent") {
+      formRef.current?.reset();
+    }
+  }, [state]);
 
-  const currentYear = new Date().getFullYear();
+  const err = (f: Field) => state.errors?.[f];
+  const describedBy = (f: Field, hint = false) =>
+    [err(f) ? `${f}-error` : null, hint ? `${f}-hint` : null].filter(Boolean).join(" ") ||
+    undefined;
+
+  const channels = [
+    { Icon: Mail, label: "Email", value: company.email, href: `mailto:${company.email}` },
+    { Icon: Phone, label: "Phone", value: company.phone, href: company.phoneHref },
+    {
+      Icon: MessageSquare,
+      label: "WhatsApp",
+      value: "Message an engineer",
+      href: company.whatsappHref,
+    },
+  ];
 
   return (
-    <div className="pt-24 min-h-screen bg-black">
-      {/* Hero Section */}
-      <section className="relative h-[65vh] flex flex-col justify-center px-[48px] border-b border-white/8 overflow-hidden">
-        <div className="absolute inset-0 z-0">
-          <Image
-            src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=1920&q=90"
-            alt="Engineering Contact Hero"
-            fill
-            className="object-cover opacity-20 blur-[2px]"
-            priority
+    <>
+      <Section className="pb-0 pt-28 md:pt-36" grid>
+        <div className="max-w-3xl">
+          <Reveal>
+            <p className="eyebrow">Contact</p>
+          </Reveal>
+          <RevealText
+            as="h1"
+            text="Let&rsquo;s scope your system."
+            delay={0.05}
+            className="display-1 mt-5 text-ink"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-black" />
+          <Reveal delay={0.15}>
+            <p className="lead mt-6">
+              Tell us what the line is doing today and what it should be doing instead.
+              An engineer replies — usually within one working day.
+            </p>
+          </Reveal>
         </div>
-        <div className="max-w-[1280px] mx-auto w-full relative z-10 text-center lg:text-left">
-          <Badge>CONNECT WITH EXPERTS</Badge>
-          <h1 className="text-[clamp(3rem,8vw,6.5rem)] leading-[0.9] font-heading font-black tracking-tighter mb-8 uppercase italic transition-all">
-            LET’S BUILD<br />INTELLIGENT SYSTEMS<br />TOGETHER.
-          </h1>
-          <p className="text-white/60 text-xl font-light italic max-w-3xl leading-relaxed mx-auto lg:ml-0">
-            From shop-floor automation to cloud intelligence, connect with our engineers to design scalable, future-ready solutions for your manufacturing ecosystem.
-          </p>
-        </div>
-      </section>
+      </Section>
 
-      {/* Main Hub */}
-      <section className="section-padding bg-black px-[48px]">
-        <div className="max-w-[1280px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-24 items-start">
+      <Section>
+        <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
+          {/* Direct channels */}
+          <div className="lg:col-span-4">
+            <Reveal>
+              <h2 className="font-heading text-2xl font-bold uppercase tracking-tight text-ink">
+                Direct lines
+              </h2>
+            </Reveal>
 
-          {/* Left: Contact Options & Trust */}
-          <div className="lg:col-span-5 space-y-20">
-            {/* Action Cards */}
-            <div className="grid grid-cols-1 gap-6">
-              <div className="p-8 bg-[#0D0D0D] border border-white/10 rounded-2xl group hover:border-[#25D366]/50 transition-all">
-                <div className="flex items-center gap-6 mb-6">
-                  <div className="w-12 h-12 bg-[#25D366]/20 rounded-xl flex items-center justify-center relative">
-                    <MessageSquare className="w-6 h-6 text-[#25D366]" />
-                    <div className="absolute top-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-[#0D0D0D] animate-pulse" />
-                  </div>
-                  <h4 className="text-lg font-heading font-black text-white uppercase italic tracking-widest">24/7 AI SUPPORT</h4>
-                </div>
-                <p className="text-white/40 text-sm italic mb-8 font-medium">Instant technical assistance and product information via our WhatsApp bot.</p>
-                <a href="https://wa.me/917892943426?text=Hello%20ASKworX%20Support,%20I%20need%20assistance%20with%20your%20industrial%20platform." target="_blank" rel="noopener noreferrer">
-                  <Button className="w-full py-4 text-[10px] tracking-widest font-black uppercase rounded-lg border border-[#25D366]/20 text-[#25D366] hover:bg-[#25D366] hover:text-black transition-all">CHAT WITH BOT →</Button>
-                </a>
-              </div>
+            <ul className="mt-8 space-y-px overflow-hidden rounded-xl border border-line bg-line">
+              {channels.map(({ Icon, label, value, href }) => (
+                <li key={label}>
+                  <a
+                    href={href}
+                    {...(href.startsWith("http")
+                      ? { target: "_blank", rel: "noopener noreferrer" }
+                      : {})}
+                    className="flex items-center gap-4 bg-background p-5 transition-colors hover:bg-paper"
+                  >
+                    <span className="flex size-10 shrink-0 items-center justify-center rounded-full border border-line text-titanium-700">
+                      <Icon className="size-4" aria-hidden="true" />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block font-mono text-[10px] uppercase tracking-[0.18em] text-muted-text">
+                        {label}
+                      </span>
+                      <span className="mt-0.5 block break-words text-sm font-medium text-ink">
+                        {value}
+                      </span>
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ul>
 
-              <div className="p-8 bg-[#0D0D0D] border border-white/10 rounded-2xl group hover:border-[#1A3D2B] transition-all">
-                <div className="flex items-center gap-6 mb-6">
-                  <div className="w-12 h-12 bg-[#1A3D2B]/20 rounded-xl flex items-center justify-center">
-                    <Calendar className="w-6 h-6 text-[#1A3D2B]" />
-                  </div>
-                  <h4 className="text-lg font-heading font-black text-white uppercase italic tracking-widest">SCHEDULE A CALL</h4>
-                </div>
-                <p className="text-white/40 text-sm italic mb-8 font-medium">Book a 30-minute consultation with our automation architecture experts.</p>
-                <a href="https://wa.me/919030108949" target="_blank" rel="noopener noreferrer">
-                  <Button className="w-full py-4 text-[10px] tracking-widest font-black uppercase rounded-lg border border-white/10 hover:bg-white hover:text-black transition-all">SCHEDULE NOW →</Button>
-                </a>
-              </div>
-
-              <div className="p-8 bg-[#0D0D0D] border border-white/10 rounded-2xl flex flex-col md:flex-row gap-12 justify-between">
-                <div className="space-y-8">
-                  <div>
-                    <p className="text-[10px] font-black tracking-widest text-[#1A3D2B] uppercase mb-4">DIRECT EMAIL</p>
-                    <a href="mailto:contact@askworx.in" className="text-xl font-heading font-black text-white italic hover:titanium-text transition-all lowercase">contact@askworx.in</a>
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-black tracking-widest text-[#1A3D2B] uppercase mb-4">ENGINEERING HOTLINE</p>
-                    <a href="tel:+919030108949" className="text-xl font-heading font-black text-white italic hover:titanium-text transition-all">+91 90301 08949</a>
-                  </div>
-                </div>
-                <div className="space-y-8 text-right">
-                  <div>
-                    <p className="text-[10px] font-black tracking-widest text-[#1A3D2B] uppercase mb-4">LOCATION</p>
-                    <p className="text-sm font-medium italic text-white/50 leading-relaxed uppercase tracking-widest">
-                      1381, 5th Stage, BEML Layout,<br />RR Nagar, Bangalore – 560098
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Why ASKworX */}
-            <div className="pt-12 border-t border-white/10">
-              <h3 className="text-xl font-heading font-black text-white uppercase italic mb-12 tracking-widest">WHY WORK WITH ASKWORX</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-10">
-                {[
-                  { title: "END-TO-END", icon: Settings, desc: "PLC level to Cloud." },
-                  { title: "FACTORY PROVEN", icon: Activity, iconColor: "text-white", desc: "Built for 24/7 environments." },
-                  { title: "SCALABLE", icon: Cloud, desc: "Future-ready architecture." },
-                  { title: "COMPLIANCE", icon: ShieldCheck, desc: "GxP & Data Integrity native." }
-                ].map((p, i) => (
-                  <div key={i} className="flex gap-4">
-                    <p.icon className={`w-5 h-5 text-[#1A3D2B] shrink-0`} />
-                    <div>
-                      <h5 className="text-[11px] font-black text-white uppercase tracking-widest mb-1 italic">{p.title}</h5>
-                      <p className="text-[10px] text-white/40 uppercase font-bold tracking-widest">{p.desc}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
+            <div className="mt-8 rounded-xl border border-line p-5">
+              <span className="flex size-10 items-center justify-center rounded-full border border-line text-titanium-700">
+                <MapPin className="size-4" aria-hidden="true" />
+              </span>
+              <h3 className="mt-4 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-text">
+                Workshop
+              </h3>
+              <address className="mt-2 text-sm not-italic leading-relaxed text-body-text">
+                {company.address}
+              </address>
             </div>
           </div>
 
-          {/* Right: Engineered Form */}
-          <div className="lg:col-span-7">
-            <div className="bg-[#0D0D0D] border border-white/8 p-12 rounded-[2rem] shadow-2xl relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-[#1A3D2B]/5 blur-[120px] rounded-full -mr-32 -mt-32" />
+          {/* Form */}
+          <div className="lg:col-span-8">
+            <div className="rounded-2xl border border-line bg-paper p-6 sm:p-10">
+              <h2 className="font-heading text-2xl font-bold uppercase tracking-tight text-ink">
+                Send a brief
+              </h2>
+              <p className="mt-2 text-sm text-body-text">
+                Fields marked with an asterisk are required. It reaches us by email —
+                no account, no newsletter.
+              </p>
 
-              <div className="mb-12">
-                <h3 className="text-3xl font-heading font-black text-white uppercase italic tracking-tighter mb-2">TRANSMIT REQUIREMENTS</h3>
-                <p className="text-[11px] font-black text-[#1A3D2B] tracking-[0.3em] uppercase italic">System Configuration Request</p>
-              </div>
+              <form ref={formRef} action={formAction} noValidate className="mt-8 space-y-6">
+                {/* Honeypot — hidden from people, tempting to bots */}
+                <div aria-hidden="true" className="absolute left-[-9999px] h-px w-px overflow-hidden">
+                  <label htmlFor="website">Website</label>
+                  <input id="website" name="website" type="text" tabIndex={-1} autoComplete="off" />
+                </div>
 
-              <form className="space-y-10" onSubmit={handleSubmit}>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                  <div className="space-y-3 group">
-                    <label className="text-[10px] font-black tracking-widest text-white/40 uppercase ml-1 group-focus-within:text-[#1A3D2B] transition-colors">FULL NAME *</label>
-                    <input
-                      type="text"
-                      required
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="w-full bg-black/50 border-b border-white/10 px-1 py-4 focus:border-[#1A3D2B] focus:outline-none transition-all text-sm font-bold tracking-widest text-white"
-                      placeholder="NAME"
+                <div className="grid gap-6 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Full name *</Label>
+                    <Input
+                      id="name"
+                      name="name"
+                      autoComplete="name"
+                      aria-required="true"
+                      aria-invalid={!!err("name")}
+                      aria-describedby={describedBy("name")}
+                      placeholder="Enter your full name"
+                      className="bg-background"
                     />
+                    {err("name") && (
+                      <p id="name-error" className="text-sm text-destructive">{err("name")}</p>
+                    )}
                   </div>
-                  <div className="space-y-3 group">
-                    <label className="text-[10px] font-black tracking-widest text-white/40 uppercase ml-1 group-focus-within:text-[#1A3D2B] transition-colors">COMPANY NAME *</label>
-                    <input
-                      type="text"
-                      required
-                      value={formData.company}
-                      onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-                      className="w-full bg-black/50 border-b border-white/10 px-1 py-4 focus:border-[#1A3D2B] focus:outline-none transition-all text-sm font-bold tracking-widest text-white"
-                      placeholder="COMPANY"
+
+                  <div className="space-y-2">
+                    <Label htmlFor="company">Company *</Label>
+                    <Input
+                      id="company"
+                      name="company"
+                      autoComplete="organization"
+                      aria-required="true"
+                      aria-invalid={!!err("company")}
+                      aria-describedby={describedBy("company")}
+                      placeholder="Enter your company name"
+                      className="bg-background"
                     />
+                    {err("company") && (
+                      <p id="company-error" className="text-sm text-destructive">{err("company")}</p>
+                    )}
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                  <div className="space-y-3 group">
-                    <label className="text-[10px] font-black tracking-widest text-white/40 uppercase ml-1 group-focus-within:text-[#1A3D2B] transition-colors">PROFESSIONAL EMAIL *</label>
-                    <input
+                <div className="grid gap-6 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Work email *</Label>
+                    <Input
+                      id="email"
+                      name="email"
                       type="email"
-                      required
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className="w-full bg-black/50 border-b border-white/10 px-1 py-4 focus:border-[#1A3D2B] focus:outline-none transition-all text-sm font-bold tracking-widest text-white italic"
-                      placeholder="contact@askworx.in"
+                      inputMode="email"
+                      autoComplete="email"
+                      spellCheck={false}
+                      autoCapitalize="none"
+                      aria-required="true"
+                      aria-invalid={!!err("email")}
+                      aria-describedby={describedBy("email")}
+                      placeholder="Enter your work email"
+                      className="bg-background"
                     />
+                    {err("email") && (
+                      <p id="email-error" className="text-sm text-destructive">{err("email")}</p>
+                    )}
                   </div>
-                  <div className="space-y-3 group">
-                    <label className="text-[10px] font-black tracking-widest text-white/40 uppercase ml-1 group-focus-within:text-[#1A3D2B] transition-colors">PHONE NUMBER</label>
-                    <input
+
+                  <div className="space-y-2">
+                    <Label htmlFor="phone">Phone</Label>
+                    <Input
+                      id="phone"
+                      name="phone"
                       type="tel"
-                      value={formData.phone}
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      className="w-full bg-black/50 border-b border-white/10 px-1 py-4 focus:border-[#1A3D2B] focus:outline-none transition-all text-sm font-bold tracking-widest text-white italic"
-                      placeholder="+91 90301 08949"
+                      inputMode="tel"
+                      autoComplete="tel"
+                      spellCheck={false}
+                      aria-describedby={describedBy("phone", true)}
+                      placeholder="Enter your phone number"
+                      className="bg-background"
                     />
+                    <p id="phone-hint" className="text-xs text-muted-text">
+                      Optional — fastest if you&rsquo;d like a call back.
+                    </p>
                   </div>
                 </div>
 
-                <div className="space-y-3 group">
-                  <label className="text-[10px] font-black tracking-widest text-white/40 uppercase ml-1 group-focus-within:text-[#1A3D2B] transition-colors">SERVICE / SOLUTION INTEREST</label>
-                  <input
-                    type="text"
-                    value={formData.service}
-                    onChange={(e) => setFormData({ ...formData, service: e.target.value })}
-                    className="w-full bg-black/50 border-b border-white/10 px-1 py-4 focus:border-[#1A3D2B] focus:outline-none transition-all text-sm font-bold tracking-widest text-white italic"
-                    placeholder="E.G. PLC AUTOMATION / CLOUD IIOT"
+                <div className="space-y-2">
+                  <Label htmlFor="service">What do you need?</Label>
+                  <Input
+                    id="service"
+                    name="service"
+                    list="service-options"
+                    autoComplete="off"
+                    aria-describedby={describedBy("service", true)}
+                    placeholder="Select or type what you need"
+                    className="bg-background"
                   />
+                  <datalist id="service-options">
+                    {services.map((s) => (
+                      <option key={s.slug} value={s.name} />
+                    ))}
+                  </datalist>
+                  <p id="service-hint" className="text-xs text-muted-text">
+                    Pick from the list or describe it in your own words.
+                  </p>
                 </div>
 
-                <div className="space-y-3 group">
-                  <label className="text-[10px] font-black tracking-widest text-white/40 uppercase ml-1 group-focus-within:text-[#1A3D2B] transition-colors">SYSTEM REQUIREMENTS / MESSAGE *</label>
-                  <textarea
-                    rows={4}
-                    required
-                    value={formData.message}
-                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                    className="w-full bg-black border border-white/5 rounded-2xl px-6 py-6 focus:border-[#1A3D2B] focus:outline-none transition-all text-sm font-medium tracking-tight text-white resize-none bg-white/[0.02]"
-                    placeholder="PLEASE DESCRIBE YOUR PROJECT GOALS AND TECHNICAL SPECIFICATIONS..."
+                <div className="space-y-2">
+                  <Label htmlFor="message">Requirements *</Label>
+                  <Textarea
+                    id="message"
+                    name="message"
+                    rows={5}
+                    aria-required="true"
+                    aria-invalid={!!err("message")}
+                    aria-describedby={describedBy("message")}
+                    placeholder="Describe your requirement — the process, the bottleneck, and what a good outcome looks like"
+                    className="resize-y bg-background"
                   />
+                  {err("message") && (
+                    <p id="message-error" className="text-sm text-destructive">{err("message")}</p>
+                  )}
                 </div>
 
-                <div className="pt-6">
-                  <Button type="submit" className="w-full py-6 bg-white text-black font-black uppercase tracking-[0.3em] text-xs rounded-full hover:bg-white/90 hover:scale-[0.99] transition-all shadow-xl">
-                    SEND ENQUIRY →
-                  </Button>
-                  <div className="mt-8 flex justify-center items-center gap-3">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#1A3D2B] animate-pulse" />
-                    <p className="text-[9px] font-black tracking-[0.4em] text-white/20 uppercase italic">OUR TEAM TYPICALLY RESPONDS WITHIN 24 HOURS</p>
-                  </div>
+                <div className="flex flex-col gap-4 pt-2 sm:flex-row sm:items-center sm:justify-between">
+                  <SubmitButton />
+                  <a
+                    href={company.whatsappHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-muted-text underline-offset-4 hover:text-ink hover:underline"
+                  >
+                    Prefer WhatsApp? Message us instead
+                  </a>
+                </div>
+
+                {/* Result — announced to screen readers when it changes */}
+                <div aria-live="polite" className="min-h-6">
+                  {state.status === "sent" && (
+                    <p className="flex items-start gap-2 text-sm text-ink">
+                      <Check className="mt-0.5 size-4 shrink-0 text-brand" aria-hidden="true" />
+                      {state.message}
+                    </p>
+                  )}
+                  {state.status === "error" && state.message && (
+                    <p className="text-sm text-destructive">{state.message}</p>
+                  )}
                 </div>
               </form>
             </div>
           </div>
         </div>
-      </section>
-
-
-    </div>
+      </Section>
+    </>
   );
 }

@@ -1,26 +1,37 @@
 import type { Metadata } from "next";
-import { Inter, Space_Grotesk } from "next/font/google";
+import { Roboto, Roboto_Condensed, Roboto_Mono } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import StructuredData from "@/components/StructuredData";
-import { PremiumEffects } from "@/components/PremiumEffects";
 import { FloatingWhatsApp } from "@/components/FloatingWhatsApp";
+import { MotionProvider } from "@/components/MotionProvider";
+import { SmoothScroll } from "@/components/SmoothScroll";
+import { cn } from "@/lib/utils";
 
-const inter = Inter({
+const roboto = Roboto({
   subsets: ["latin"],
-  variable: '--font-body',
+  variable: '--font-roboto',
+  weight: ['300', '400', '500', '700', '900'],
 });
 
-const spaceGrotesk = Space_Grotesk({
+const robotoCondensed = Roboto_Condensed({
   subsets: ["latin"],
-  variable: '--font-heading',
-  weight: ['300', '400', '500', '600', '700'],
+  variable: '--font-roboto-condensed',
+  weight: ['400', '600', '700', '800'],
+});
+
+const robotoMono = Roboto_Mono({
+  subsets: ["latin"],
+  variable: '--font-roboto-mono',
+  weight: ['400', '500', '700'],
 });
 
 export const viewport = {
   width: 'device-width',
   initialScale: 1,
+  themeColor: '#FFFFFF',
+  colorScheme: 'light',
 };
 
 export const metadata: Metadata = {
@@ -83,16 +94,31 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable}`}>
-      <body className="bg-black">
-        <PremiumEffects />
+    <html
+      lang="en"
+      className={cn(roboto.variable, robotoCondensed.variable, robotoMono.variable)}
+    >
+      <head>
+        <link rel="preconnect" href="https://images.unsplash.com" />
+        <link rel="preconnect" href="https://videos.pexels.com" />
+      </head>
+      <body className="bg-background antialiased">
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[9999] focus:rounded-full focus:bg-ink focus:px-6 focus:py-3 focus:text-sm focus:font-semibold focus:text-white"
+        >
+          Skip to main content
+        </a>
         <StructuredData />
-        <Navbar />
-        <main className="min-h-screen">
-          {children}
-        </main>
-        <Footer />
-        <FloatingWhatsApp />
+        <SmoothScroll />
+        <MotionProvider>
+          <Navbar />
+          <main id="main" className="min-h-screen">
+            {children}
+          </main>
+          <Footer />
+          <FloatingWhatsApp />
+        </MotionProvider>
       </body>
     </html>
   );

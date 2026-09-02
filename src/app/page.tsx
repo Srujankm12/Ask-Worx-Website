@@ -1,340 +1,593 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { motion, useInView } from 'framer-motion';
-import { Badge, Button } from '@/components/UI';
-import { CommandCenter, Marquee } from '@/components/Widgets';
-import { 
-  ArrowRight, Eye, Lightbulb, BarChart3, 
-  Map, Wrench, FileText, Search, Share2, 
-  CheckCircle2, Cpu, Factory, Cloud, Compass,
-  ShieldCheck, Zap, Layers, Activity, Monitor,
-  Smartphone, Code, Megaphone, Server, Boxes,
-  ChevronRight, Quote, Trophy, Globe, Lock,
-  Radio, Terminal, MessageSquare, FlaskConical,
-  Sun, Building2, Car, Utensils, Droplets,
-  Scissors, Plane
-} from 'lucide-react';
+import React, { useRef } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { ArrowRight, ArrowUpRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Section, SectionHeader } from "@/components/Section";
+import { Reveal, RevealText, Stagger, StaggerItem } from "@/components/motion/Reveal";
+import {
+  ScrollVelocityRow,
+  ScrollShift,
+  MarqueeImage,
+} from "@/components/motion/ScrollMarquee";
+import {
+  ScrubShowcase,
+  useScrubMode,
+  type ScrubBeat,
+} from "@/components/motion/ScrubShowcase";
+import { ScrollFallText } from "@/components/motion/ScrollFallText";
+import {
+  services,
+  solutions,
+  industries,
+  posts,
+  processSteps,
+  stack,
+  benefits,
+  partnership,
+  company,
+  formatDate,
+} from "@/lib/site";
+
+function Hero() {
+  const ref = useRef<HTMLDivElement>(null);
+
+  // Drive from document scroll in pixels — element-relative progress can
+  // measure stale while fonts and images settle, which washed out the hero.
+  const { scrollY } = useScroll();
+
+  // Content drifts up, then dissolves only once you are clearly leaving —
+  // it stays fully solid through the first part of the scroll.
+  const y = useTransform(scrollY, [0, 800], [0, 90]);
+  const opacity = useTransform(scrollY, [0, 320, 760], [1, 1, 0]);
+
+  // The brushed-metal highlight travels across the headline as you scroll,
+  // so the type catches the light the way the logo's finish does.
+  const sheenX = useTransform(scrollY, [0, 700], ["0%", "100%"]);
+
+  // The mark behind the type parallaxes and turns fractionally.
+  const markY = useTransform(scrollY, [0, 700], [0, -70]);
+  const markScale = useTransform(scrollY, [0, 700], [1, 1.12]);
+  const markRotate = useTransform(scrollY, [0, 700], [0, 6]);
+
+  // Rule retracts as you leave the top.
+  const ruleScale = useTransform(scrollY, [0, 400], [1, 0.2]);
+
+  return (
+    <section
+      ref={ref}
+      className="relative flex min-h-[92vh] flex-col overflow-hidden bg-background pt-20"
+    >
+      <div aria-hidden="true" className="absolute inset-0 grid-paper opacity-60" />
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 bg-[radial-gradient(ellipse_75%_55%_at_50%_35%,#FFFFFF_35%,transparent_100%)]"
+      />
+
+      {/* Oversized brand mark — the hero's only image, and it's yours */}
+      <motion.div
+        aria-hidden="true"
+        style={{ y: markY, scale: markScale, rotate: markRotate }}
+        className="pointer-events-none absolute -right-[12%] top-1/2 hidden w-[52vw] max-w-[760px] -translate-y-1/2 md:block"
+      >
+        <Image
+          src="/logo.png"
+          alt=""
+          width={760}
+          height={506}
+          priority
+          className="w-full opacity-[0.07] grayscale"
+        />
+      </motion.div>
+
+      <motion.div
+        style={{ y, opacity }}
+        className="container-custom relative z-10 flex flex-1 flex-col justify-center py-14 md:py-20"
+      >
+        <Reveal>
+          <div className="flex items-center gap-4">
+            <motion.span
+              aria-hidden="true"
+              style={{ scaleX: ruleScale }}
+              className="hidden h-px w-16 origin-left bg-line-strong sm:block"
+            />
+            <p className="eyebrow">
+              {company.legal} · {company.city}
+            </p>
+          </div>
+        </Reveal>
+
+        <h1 className="mt-8 max-w-5xl">
+          <RevealText
+            as="span"
+            text="Automation that works today."
+            delay={0.05}
+            className="display-1 block text-ink"
+          />
+          <motion.span
+            style={{ backgroundPositionX: sheenX }}
+            className="titanium-sheen block bg-[length:220%_100%]"
+          >
+            <RevealText
+              as="span"
+              text="Intelligence that scales tomorrow."
+              delay={0.25}
+              className="display-1 block"
+            />
+          </motion.span>
+        </h1>
+
+        <Reveal delay={0.5}>
+          <p className="lead mt-10 max-w-xl">
+            We engineer control systems and the software above them — PLC, SCADA,
+            and IIoT — taken from the plant floor to the cloud by one team.
+          </p>
+        </Reveal>
+
+      </motion.div>
+
+      {/* Discipline strip — grounds the promise in what we actually do */}
+      <div className="relative z-10 mt-auto border-t border-line bg-background">
+        <div className="container-custom">
+          <Stagger className="grid grid-cols-2 divide-line md:grid-cols-3 lg:grid-cols-6 lg:divide-x">
+            {services.map((svc) => (
+              <StaggerItem key={svc.slug}>
+                <Link
+                  href={`/services/${svc.slug}`}
+                  className="group flex h-full flex-col justify-between gap-3 px-1 py-6 lg:px-5"
+                >
+                  <span className="font-heading text-sm font-bold uppercase leading-tight tracking-tight text-ink transition-colors group-hover:text-titanium-700">
+                    {svc.name}
+                  </span>
+                </Link>
+              </StaggerItem>
+            ))}
+          </Stagger>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ProcessSection() {
+  const scrub = useScrubMode();
+
+  const header = (
+    <div className="container-custom mb-10 lg:mb-14">
+      <p className="eyebrow text-champagne">Method</p>
+      <ScrollFallText
+        text="How a deployment runs"
+        as="h2"
+        className="display-2 mt-4 text-champagne-100"
+      />
+      <p className="mt-4 max-w-xl text-lg leading-relaxed text-champagne-600">
+        Four stages, no surprises. Your line keeps running the whole way through.
+      </p>
+    </div>
+  );
+
+  // One beat per stage: the number huge on the left, the detail on the right.
+  const beats: ScrubBeat[] = processSteps.map((s, i) => ({
+    label: s.title,
+    at: i / processSteps.length,
+    content: (
+      <div className="grid items-start gap-8 lg:grid-cols-12 lg:gap-14">
+        <div className="lg:col-span-4">
+          <span className="block font-heading text-[clamp(4rem,9vw,8rem)] font-extrabold leading-none text-champagne/25">
+            {s.n}
+          </span>
+        </div>
+        <div className="lg:col-span-8">
+          <h3 className="font-heading text-3xl font-extrabold uppercase tracking-tight text-champagne-100 md:text-4xl">
+            {s.title}
+          </h3>
+          <p className="mt-5 max-w-2xl text-lg leading-relaxed text-champagne-600">
+            {s.body}
+          </p>
+        </div>
+      </div>
+    ),
+  }));
+
+  // Stacked fallback: mobile, reduced motion, and first paint before measuring.
+  if (!scrub) {
+    return (
+      <Section tone="ink" grid>
+        <SectionHeader
+          eyebrow="Method"
+          title="How a deployment runs"
+          intro="Four stages, no surprises. Your line keeps running the whole way through."
+          onInk
+        />
+        <Stagger className="grid gap-x-8 gap-y-10 md:grid-cols-2 lg:grid-cols-4">
+          {processSteps.map((s) => (
+            <StaggerItem key={s.n}>
+              <div className="border-t border-champagne/25 pt-5">
+                <span className="font-mono text-xs tracking-[0.2em] text-champagne">{s.n}</span>
+                <h3 className="mt-3 font-heading text-xl font-bold uppercase tracking-tight text-champagne-100">
+                  {s.title}
+                </h3>
+                <p className="mt-3 text-sm leading-relaxed text-champagne-600">{s.body}</p>
+              </div>
+            </StaggerItem>
+          ))}
+        </Stagger>
+      </Section>
+    );
+  }
+
+  return (
+    <div className="bg-ink grid-paper-inverse text-champagne-600">
+      <ScrubShowcase beats={beats} screens={4} header={header} stageMinHeight={300} />
+    </div>
+  );
+}
 
 export default function HomePage() {
   return (
-    <div className="overflow-x-hidden pt-[72px] bg-black">
-      {/* 01. Hero Section */}
-      <section className="relative h-[95vh] flex items-center px-[48px] overflow-hidden">
-        <div className="absolute inset-0 z-0">
-          <Image src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=1920&q=90" alt="Advanced Industrial" fill priority className="object-cover opacity-70" />
-          <div className="absolute inset-0 bg-gradient-to-r from-black via-black/60 to-black/10" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/5" />
-        </div>
+    <>
+      <Hero />
 
-        <div className="max-w-[1280px] mx-auto w-full relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
-            <div className="lg:col-span-8">
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
-                <div className="flex items-center gap-4 mb-8">
-                   <Badge>● GROUND TO CLOUD ENGINEERING</Badge>
-                   <div className="h-[1px] w-24 bg-white/10" />
+      {/* Services */}
+      <Section id="services" tone="paper">
+        <ScrollShift from={-4} to={3}>
+          <SectionHeader
+            eyebrow="Services"
+            title="What we do"
+            intro="Six disciplines, one engineering team. Each builds on the one before it, from the plant floor up."
+            action={
+              <Button asChild variant="outline" className="rounded-full">
+                <Link href="/services">
+                  All services <ArrowRight className="size-4" aria-hidden="true" />
+                </Link>
+              </Button>
+            }
+          />
+        </ScrollShift>
+
+        <Stagger className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {services.map((svc) => (
+            <StaggerItem key={svc.slug} className="h-full">
+              <Link
+                href={`/services/${svc.slug}`}
+                className="group flex h-full flex-col overflow-hidden rounded-xl border border-line bg-background transition-shadow duration-300 hover:shadow-[0_24px_60px_-28px_rgba(28,26,23,0.4)]"
+              >
+                <div className="relative aspect-[16/10] overflow-hidden">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={svc.image}
+                    alt=""
+                    width={1400}
+                    height={875}
+                    loading="lazy"
+                    className="size-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                  <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-ink/60 via-ink/10 to-transparent" />
                 </div>
-                <h1 className="text-[clamp(3.5rem,8.5vw,7.5rem)] leading-[0.85] font-heading font-black tracking-tighter mb-10 uppercase italic text-white">
-                  ENGINEERING<br />THE INDUSTRIAL<br /><span className="titanium-text">FUTURE.</span>
-                </h1>
-                <p className="text-xl md:text-2xl text-secondary max-w-2xl mb-14 italic leading-relaxed font-light">
-                  "High-availability logic. Secure telemetry. Scalable software. We build the systems that power the modern world."
-                </p>
-                <div className="flex flex-wrap gap-6">
-                  <a href="https://wa.me/919030108949" target="_blank" rel="noopener noreferrer">
-                    <Button className="px-14 py-6 bg-[#1A3D2B] text-white rounded-full font-black uppercase tracking-widest text-[11px] shadow-[0_0_50px_rgba(26,61,43,0.3)] hover:scale-105 transition-all">WHATSAPP CONSULTATION →</Button>
-                  </a>
-                  <Link href="/contact">
-                    <Button variant="secondary" className="px-14 py-6 rounded-full font-black uppercase tracking-widest text-[11px] hover:bg-white hover:text-black transition-all border-white/20">GET TECHNICAL QUOTE →</Button>
-                  </Link>
+
+                <div className="flex flex-1 flex-col p-6">
+                  <h3 className="font-heading text-xl font-bold uppercase tracking-tight text-ink transition-colors group-hover:text-titanium-700">
+                    {svc.name}
+                  </h3>
+                  <p className="mt-2.5 text-sm leading-relaxed">{svc.summary}</p>
+                  <span className="mt-auto inline-flex items-center gap-1.5 pt-6 font-mono text-[11px] uppercase tracking-[0.12em] text-ink">
+                    Explore
+                    <ArrowUpRight
+                      className="size-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                      aria-hidden="true"
+                    />
+                  </span>
                 </div>
-              </motion.div>
-            </div>
-            <div className="lg:col-span-4 hidden lg:block">
-               <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.5, duration: 1 }}>
-                 <CommandCenter />
-               </motion.div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 02. The Process Section (Velocity) */}
-      <section className="section-padding px-[48px] bg-black border-b border-white/5">
-         <div className="max-w-[1280px] mx-auto">
-            <div className="mb-24">
-               <Badge>THE VELOCITY</Badge>
-               <h2 className="text-5xl md:text-7xl font-heading font-black text-white uppercase italic mt-6 tracking-tighter">OUR DEPLOYMENT<br />FRAMEWORK.</h2>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-               {[
-                 { step: "01", title: "Discovery & Audit", body: "Deep-dive into existing OT/IT infrastructure to identify scale bottlenecks." },
-                 { step: "02", title: "Logic Architecture", body: "Engineering deterministic PLC logic and secure cloud-bridge telemetry." },
-                 { step: "03", title: "Agile Deployment", body: "Non-disruptive integration with existing shop-floor operations." },
-                 { step: "04", title: "Scaling & Growth", body: "Amplifying local results with global digital marketing and SaaS extensions." }
-               ].map((item, i) => (
-                 <div key={i} className="relative p-12 bg-[#0D0D0D] border border-white/5 rounded-3xl hover:border-[#1A3D2B] transition-all group overflow-hidden">
-                    <span className="absolute -right-4 -top-4 text-9xl font-heading font-black text-white/[0.02] transition-colors group-hover:text-[#1A3D2B]/10">{item.step}</span>
-                    <div className="relative z-10">
-                       <h3 className="text-2xl font-heading font-black text-white uppercase italic mb-6">{item.title}</h3>
-                       <p className="text-secondary text-xs font-bold tracking-widest leading-loose uppercase italic">{item.body}</p>
-                    </div>
-                 </div>
-               ))}
-            </div>
-         </div>
-      </section>
-
-      {/* 03. FULL SERVICES GRID WITH IMAGES */}
-      <section className="section-padding px-[48px] bg-[#050505]">
-         <div className="max-w-[1280px] mx-auto">
-            <div className="flex flex-col lg:flex-row justify-between items-end gap-12 mb-24">
-               <div className="max-w-xl">
-                  <Badge>OUR CORE CAPABILITIES</Badge>
-                  <h2 className="text-5xl md:text-7xl font-heading font-black text-white uppercase italic mt-6 leading-none tracking-tighter">ENGINEERING<br />& GROWTH STACK.</h2>
-               </div>
-               <p className="text-xl text-secondary italic max-w-sm mb-4">
-                  "From deterministic plant-floor logic to global digital expansion. One partner for your entire journey."
-               </p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-               {[
-                 { 
-                   icon: Factory, 
-                   title: "Industrial Automation", 
-                   body: "PLC/SCADA, motion control, and high-availability engineering.", 
-                   img: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800",
-                   link: "/services/automation" 
-                 },
-                 { 
-                   icon: Cloud, 
-                   title: "IIoT & Cloud", 
-                   body: "Secure telemetry and real-time operational intelligence.", 
-                   img: "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=800",
-                   link: "/services/iiot" 
-                 },
-                 { 
-                   icon: Terminal, 
-                   title: "Software Dev", 
-                   body: "Fintech portals, custom ERP/CRM, and scalable SaaS solutions.", 
-                   img: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800",
-                   link: "/services/software" 
-                 },
-                 { 
-                   icon: Smartphone, 
-                   title: "Mobile Apps", 
-                   body: "Premium iOS and Android apps for consumer and enterprise.", 
-                   img: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=800",
-                   link: "/services/mobile" 
-                 },
-                 { 
-                   icon: Megaphone, 
-                   title: "Digital Marketing", 
-                   body: "Meta Ads, Google Search Ads, and high-conversion SEO.", 
-                   img: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800",
-                   link: "/services/marketing" 
-                 },
-                 { 
-                   icon: MessageSquare, 
-                   title: "WhatsApp Bot", 
-                   body: "AI-powered automation for sales and factory alarm bridges.", 
-                   img: "https://images.unsplash.com/photo-1611746872915-64382b5c76da?w=800",
-                   link: "/services/whatsapp" 
-                 }
-               ].map((card, i) => (
-                 <motion.div 
-                   key={i}
-                   whileHover={{ y: -10 }}
-                   className="group bg-black border border-white/5 rounded-[40px] overflow-hidden hover:border-[#1A3D2B] transition-all flex flex-col h-full"
-                 >
-                    {/* Card Image Header */}
-                    <div className="relative h-64 overflow-hidden">
-                       <Image src={card.img} fill alt={card.title} className="object-cover opacity-50 group-hover:scale-110 transition-all duration-700" />
-                       <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
-                       <div className="absolute top-8 left-8 p-3 bg-black/40 backdrop-blur-md rounded-2xl border border-white/10">
-                          <card.icon className="w-6 h-6 text-white group-hover:text-[#1A3D2B] transition-colors" />
-                       </div>
-                    </div>
-
-                    <div className="p-10 flex flex-col justify-between flex-grow">
-                       <div>
-                          <h3 className="text-2xl font-heading font-black text-white uppercase italic mb-4">{card.title}</h3>
-                          <p className="text-secondary text-xs font-bold tracking-widest leading-relaxed uppercase italic mb-10">{card.body}</p>
-                       </div>
-                       <Link href={card.link}>
-                          <Button variant="secondary" className="w-full py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] group-hover:bg-[#1A3D2B] group-hover:text-white transition-all">VIEW DETAILS →</Button>
-                       </Link>
-                    </div>
-                 </motion.div>
-               ))}
-            </div>
-         </div>
-      </section>
-
-      {/* 04. Industrial Products Showcase (Teaser) */}
-      <section className="section-padding px-[48px] bg-black border-y border-white/5">
-         <div className="max-w-[1280px] mx-auto mb-24 flex flex-col items-center text-center">
-            <Badge>PRECISION HARDWARE</Badge>
-            <h2 className="text-5xl md:text-7xl font-heading font-black text-white uppercase italic mt-8 leading-[0.85] tracking-tighter">THE GROUND ENGINE.</h2>
-         </div>
-         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-[1280px] mx-auto">
-            <Link href="/products/plc" className="group h-[500px] relative rounded-3xl overflow-hidden border border-white/10">
-               <Image src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800" fill alt="PLC" className="object-cover opacity-60 group-hover:scale-105 transition-all duration-700" />
-               <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
-               <div className="absolute bottom-12 left-12">
-                  <h3 className="text-4xl font-heading font-black text-white uppercase italic">PLC & CONTROL →</h3>
-                  <p className="text-xs font-bold tracking-[0.2em] text-secondary uppercase mt-4">Deterministic Logic at Scale</p>
-               </div>
-            </Link>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-               <Link href="/products/scada" className="group h-[234px] relative rounded-3xl overflow-hidden border border-white/10">
-                  <Image src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600" fill alt="SCADA" className="object-cover opacity-60 group-hover:scale-105 transition-all duration-700" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent" />
-                  <div className="absolute bottom-8 left-8">
-                     <h3 className="text-xl font-heading font-black text-white uppercase italic">SCADA VISUAL →</h3>
-                  </div>
-               </Link>
-               <Link href="/products/sensors" className="group h-[234px] relative rounded-3xl overflow-hidden border border-white/10">
-                  <Image src="https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?w=600" fill alt="Sensors" className="object-cover opacity-60 group-hover:scale-105 transition-all duration-700" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent" />
-                  <div className="absolute bottom-8 left-8">
-                     <h3 className="text-xl font-heading font-black text-white uppercase italic">PRECISION SENSORS →</h3>
-                  </div>
-               </Link>
-               <Link href="/products/networking" className="group col-span-1 md:col-span-2 h-[234px] relative rounded-3xl overflow-hidden border border-white/10">
-                  <Image src="https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=1000" fill alt="Networking" className="object-cover opacity-60 group-hover:scale-105 transition-all duration-700" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent" />
-                  <div className="absolute bottom-8 left-8">
-                     <h3 className="text-2xl font-heading font-black text-white uppercase italic">INDUSTRIAL NETWORKING →</h3>
-                  </div>
-               </Link>
-            </div>
-         </div>
-      </section>
-
-      {/* 05. Engineering Blog Section (Latest Insights) */}
-      <section className="section-padding bg-black px-[48px] border-b border-white/5">
-        <div className="max-w-[1280px] mx-auto">
-           <div className="flex flex-col lg:flex-row justify-between items-end mb-20 gap-8">
-              <div className="max-w-xl">
-                 <Badge>ENGINEERING INSIGHTS</Badge>
-                 <h2 className="text-5xl md:text-7xl font-heading font-black text-white uppercase italic mt-6 leading-none tracking-tighter">LATEST FROM<br />THE LAB.</h2>
-              </div>
-              <Link href="/blog">
-                 <Button variant="secondary" className="px-10 py-5 rounded-full font-black uppercase tracking-widest text-[10px]">VISIT FULL BLOG →</Button>
               </Link>
-           </div>
-           
-           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-              {[
-                { 
-                  title: "Industry 4.0 in India: Deep Dive into 2025 Manufacturing", 
-                  date: "APR 19, 2026",
-                  img: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=1000",
-                  tag: "INDUSTRY ANALYSIS",
-                  slug: "industry-4-india-2025",
-                  body: "Where manufacturers really stand in the digital revolution and how to overcome legacy infrastructure barriers."
-                },
-                { 
-                  title: "PLC VS DCS: Which Control System is Right for Your Plant?", 
-                  date: "APR 15, 2026",
-                  img: "https://images.unsplash.com/photo-1555664424-778a1e5e1b48?w=1000",
-                  tag: "TECHNICAL GUIDE",
-                  slug: "plc-vs-dcs-which-to-choose",
-                  body: "Understanding the architectural differences and how hybrid control systems are disrupting process automation."
-                },
-                { 
-                  title: "How to Calculate the Real ROI of an IIoT Investment", 
-                  date: "APR 10, 2026",
-                  img: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1000",
-                  tag: "BUSINESS CASE",
-                  slug: "iiot-roi-manufacturing",
-                  body: "A framework for measuring the direct economic impact of predictive maintenance and operational visibility."
-                }
-              ].map((blog, i) => (
-                <motion.div 
-                   key={i} 
-                   whileHover={{ y: -10 }}
-                   className="group bg-[#0A0A0A] border border-white/5 rounded-[40px] overflow-hidden hover:border-[#1A3D2B] transition-all flex flex-col h-full"
-                >
-                   <div className="relative h-64 overflow-hidden">
-                      <Image src={blog.img} fill alt={blog.title} className="object-cover opacity-40 group-hover:scale-110 transition-all duration-700" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-transparent to-transparent" />
-                      <div className="absolute top-6 left-6 flex flex-wrap gap-3">
-                         <span className="px-3 py-1.5 bg-black/60 backdrop-blur-md rounded-full border border-white/10 text-[8px] font-black tracking-widest text-white uppercase">{blog.tag}</span>
-                         <span className="px-3 py-1.5 bg-[#1A3D2B] rounded-full text-[8px] font-black tracking-widest text-white uppercase">{blog.date}</span>
-                      </div>
-                   </div>
-                   <div className="p-8 flex flex-col justify-between flex-grow">
-                      <div>
-                         <h3 className="text-xl font-heading font-black text-white uppercase italic mb-6 leading-tight group-hover:titanium-text transition-all min-h-[3rem]">{blog.title}</h3>
-                         <p className="text-white/40 text-xs leading-relaxed italic mb-8">{blog.body}</p>
-                      </div>
-                      <Link href={`/blog/${blog.slug}`}>
-                         <Button variant="secondary" className="w-full py-4 rounded-xl font-black uppercase tracking-[0.2em] text-[10px] group-hover:bg-[#1A3D2B] group-hover:text-white transition-all">READ ARTICLE →</Button>
-                      </Link>
-                   </div>
-                </motion.div>
-              ))}
-           </div>
+            </StaggerItem>
+          ))}
+        </Stagger>
+      </Section>
+
+
+      {/* Ground to Cloud — the five layers the name refers to */}
+      <Section id="stack" tone="paper">
+        <SectionHeader
+          eyebrow="The stack"
+          title="Ground to cloud, one layer at a time"
+          intro="We don't just automate machines — we connect operations to intelligence. Every discipline we run sits on one of these five layers, and the same team owns all of them."
+        />
+
+        <Stagger className="hairline-grid grid grid-cols-1">
+          {[...stack].reverse().map((layer) => (
+            <StaggerItem key={layer.name}>
+              <div className="grid gap-4 bg-background p-7 md:grid-cols-12 md:items-baseline md:gap-8">
+                <div className="md:col-span-3">
+                  <h3 className="font-heading text-xl font-bold uppercase tracking-tight text-ink md:text-2xl">
+                    {layer.name}
+                  </h3>
+                </div>
+
+                <p className="text-[15px] leading-[1.85] md:col-span-6">{layer.body}</p>
+
+                <ul className="flex flex-wrap gap-2 md:col-span-3 md:justify-end">
+                  {layer.solutions.map((slug) => {
+                    const sol = solutions.find((x) => x.slug === slug);
+                    if (!sol) return null;
+                    return (
+                      <li key={slug}>
+                        <Link
+                          href={`/solutions/${sol.slug}`}
+                          className="inline-flex rounded-full border border-line bg-paper px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.06em] text-body-text transition-colors hover:border-line-strong hover:text-ink"
+                        >
+                          {sol.name}
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            </StaggerItem>
+          ))}
+        </Stagger>
+      </Section>
+
+      {/* What a unified stack is worth */}
+      <Section>
+        <SectionHeader
+          eyebrow="Why it matters"
+          title="What a unified system gives you"
+          intro="The benefit of owning every layer is not tidiness. It is that the numbers finally agree."
+        />
+        <Stagger className="grid grid-cols-1 gap-x-10 gap-y-12 md:grid-cols-3">
+          {benefits.map((b) => (
+            <StaggerItem key={b.n}>
+              <div className="border-t border-line-strong pt-6">
+                <span className="block font-heading text-[clamp(2.5rem,5vw,4rem)] font-extrabold leading-none text-titanium-700/30">
+                  {b.n}
+                </span>
+                <h3 className="mt-4 font-heading text-xl font-bold uppercase tracking-tight text-ink">
+                  {b.title}
+                </h3>
+                <p className="mt-3 text-[15px] leading-[1.85]">{b.body}</p>
+              </div>
+            </StaggerItem>
+          ))}
+        </Stagger>
+      </Section>
+
+      {/* Solutions */}
+      <Section id="solutions">
+        <SectionHeader
+          eyebrow="Solutions"
+          title="The hardware and platforms"
+          intro="The building blocks we specify, supply, and commission — each with its own detail sheet."
+          action={
+            <Button asChild variant="outline" className="rounded-full">
+              <Link href="/solutions">
+                All solutions <ArrowRight className="size-4" aria-hidden="true" />
+              </Link>
+            </Button>
+          }
+        />
+
+        <Stagger className="grid grid-cols-1 hairline-grid sm:grid-cols-2 lg:grid-cols-4">
+          {solutions.map((sol) => (
+            <StaggerItem key={sol.slug} className="h-full">
+              <Link
+                href={`/solutions/${sol.slug}`}
+                className="group flex h-full flex-col bg-background p-7 transition-colors hover:bg-paper"
+              >
+                <h3 className="mt-5 font-heading text-xl font-bold uppercase tracking-tight text-ink transition-colors group-hover:text-titanium-700">
+                  {sol.name}
+                </h3>
+                <p className="mt-3 text-sm leading-relaxed">{sol.summary}</p>
+                <span className="mt-auto inline-flex items-center gap-1.5 pt-6 font-mono text-[11px] uppercase tracking-[0.12em] text-ink">
+                  Detail sheet
+                  <ArrowUpRight className="size-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" aria-hidden="true" />
+                </span>
+              </Link>
+            </StaggerItem>
+          ))}
+        </Stagger>
+      </Section>
+
+      {/* Work band — two rows drifting opposite ways as you scroll */}
+      <section aria-labelledby="work-band" className="overflow-hidden bg-paper py-16 md:py-24">
+        <div className="container-custom">
+          <Reveal>
+            <p className="eyebrow">In the field</p>
+          </Reveal>
+          <ScrollFallText
+            text="Where the work happens"
+            as="h2"
+            className="display-2 mt-4 max-w-2xl text-ink"
+          />
+        </div>
+
+        <div className="mt-12 space-y-4 md:space-y-6">
+          <ScrollVelocityRow baseVelocity={2.2}>
+            {solutions.slice(0, 5).map((sol) => (
+              <MarqueeImage
+                key={sol.slug}
+                src={sol.image}
+                alt={`${sol.name} — installed and commissioned by ${company.name}`}
+                kind="Solution"
+                name={sol.name}
+              />
+            ))}
+          </ScrollVelocityRow>
+
+          <ScrollVelocityRow baseVelocity={-2.2}>
+            {industries.slice(0, 5).map((ind) => (
+              <MarqueeImage
+                key={ind.slug}
+                src={ind.image}
+                alt={`${ind.name} production environment`}
+                kind="Industry"
+                name={ind.name}
+              />
+            ))}
+          </ScrollVelocityRow>
         </div>
       </section>
 
-      {/* 07. Industries Verticals (Teaser Grid) */}
-      <section className="section-padding px-[48px] bg-[#050505]">
-         <div className="max-w-[1280px] mx-auto">
-            <div className="flex flex-col lg:flex-row justify-between items-end gap-12 mb-24">
-               <div className="max-w-xl">
-                  <Badge>GLOBAL VERTICALS</Badge>
-                  <h2 className="text-5xl md:text-7xl font-heading font-black text-white uppercase italic mt-6 leading-none tracking-tighter">INDUSTRIES<br />WE SERVE.</h2>
-               </div>
-               <Link href="/industries">
-                  <Button variant="secondary" className="px-10 py-5 rounded-full font-black uppercase tracking-widest text-[10px]">VIEW ALL SECTORS →</Button>
-               </Link>
-            </div>
+      {/* Process — pinned and scroll-scrubbed on desktop */}
+      <ProcessSection />
 
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-               {[
-                 { name: "Automotive", icon: Car },
-                 { name: "Pharma", icon: FlaskConical },
-                 { name: "Food & Bev", icon: Utensils },
-                 { name: "Renewables", icon: Sun },
-                 { name: "Oil & Gas", icon: Droplets },
-                 { name: "Textiles", icon: Scissors }
-               ].map((ind, i) => (
-                 <Link href={`/industries`} key={i} className="p-10 bg-black border border-white/5 rounded-[30px] hover:border-[#1A3D2B] transition-all group flex flex-col justify-between h-[220px]">
-                    <ind.icon className="w-8 h-8 text-white/50 group-hover:text-[#1A3D2B] transition-colors" />
-                    <div>
-                       <h4 className="text-[12px] font-black tracking-[0.3em] text-white uppercase italic">{ind.name}</h4>
-                    </div>
-                    <ChevronRight className="w-5 h-5 text-white/10 group-hover:text-white group-hover:translate-x-2 transition-all" />
-                 </Link>
-               ))}
-            </div>
-         </div>
-      </section>
+      {/* Industries */}
+      <Section id="industries" tone="paper">
+        <SectionHeader
+          eyebrow="Industries"
+          title="Where we deploy"
+          intro={`The same stack, tuned to the constraints of each sector — compliance, hygiene, uptime, or all three. Six of the ${industries.length} we work in.`}
+          action={
+            <Button asChild variant="outline" className="rounded-full">
+              <Link href="/industries">
+                All industries <ArrowRight className="size-4" aria-hidden="true" />
+              </Link>
+            </Button>
+          }
+        />
+        <Stagger className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {industries.slice(0, 6).map((ind) => (
+            <StaggerItem key={ind.slug} className="h-full">
+              <Link
+                href={`/industries/${ind.slug}`}
+                className="group flex h-full flex-col overflow-hidden rounded-xl border border-line bg-background transition-shadow hover:shadow-[0_20px_50px_-24px_rgba(28,26,23,0.35)]"
+              >
+                <div className="relative aspect-[16/10] overflow-hidden">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={ind.image}
+                    alt={`${ind.name} production environment`}
+                    width={1400}
+                    height={875}
+                    loading="lazy"
+                    className="size-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                  <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-ink/55 to-transparent" />
+                </div>
+                <div className="flex flex-1 flex-col p-6">
+                  <h3 className="font-heading text-xl font-bold uppercase tracking-tight text-ink transition-colors group-hover:text-titanium-700">
+                    {ind.name}
+                  </h3>
+                  <p className="mt-2.5 text-sm leading-relaxed">{ind.summary}</p>
+                  <span className="mt-auto inline-flex items-center gap-1.5 pt-5 font-mono text-[11px] uppercase tracking-[0.12em] text-ink">
+                    Sector notes
+                    <ArrowUpRight className="size-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" aria-hidden="true" />
+                  </span>
+                </div>
+              </Link>
+            </StaggerItem>
+          ))}
+        </Stagger>
+      </Section>
 
-      {/* 10. Final CTA */}
-      <section className="section-padding bg-black text-center relative overflow-hidden">
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-[#1A3D2B]/5 blur-3xl rounded-full" />
-        <div className="max-w-[1280px] mx-auto relative z-10 flex flex-col items-center">
-          <Badge>RELIABLE & READY</Badge>
-          <h2 className="text-[clamp(3rem,8vw,10rem)] font-heading font-black text-white uppercase italic mb-16 leading-[0.8] tracking-tighter text-center">
-            THE FUTURE IS<br /><span className="titanium-text">AUTOMATED.</span>
-          </h2>
-          <div className="flex flex-wrap justify-center gap-8">
-             <a href="https://wa.me/919030108949" target="_blank" rel="noopener noreferrer">
-              <Button className="px-16 py-7 bg-[#1A3D2B] text-white rounded-full font-black uppercase tracking-[0.3em] text-xs shadow-2xl">WHATSAPP CONSULTATION →</Button>
-            </a>
-            <Link href="/contact" className="inline-block">
-              <Button variant="secondary" className="px-16 py-7 rounded-full font-black uppercase tracking-[0.3em] text-xs hover:bg-white hover:text-black transition-all border-white/20">CONSULT WITH AN ENGINEER →</Button>
-            </Link>
+      {/* Insights */}
+      <Section>
+        <SectionHeader
+          eyebrow="Field notes"
+          title="From the engineering blog"
+          action={
+            <Button asChild variant="outline" className="rounded-full">
+              <Link href="/blog">
+                All articles <ArrowRight className="size-4" aria-hidden="true" />
+              </Link>
+            </Button>
+          }
+        />
+        <Stagger className="grid grid-cols-1 hairline-grid md:grid-cols-3">
+          {posts.map((post) => (
+            <StaggerItem key={post.slug} className="h-full">
+              <Link href={`/blog/${post.slug}`} className="group flex h-full flex-col bg-background p-8 transition-colors hover:bg-paper">
+                <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-muted-text">
+                  <time dateTime={post.date}>{formatDate(post.date)}</time>
+                  <span aria-hidden="true"> · </span>
+                  {post.tag}
+                </p>
+                <h3 className="mt-5 font-heading text-xl font-bold leading-snug tracking-tight text-ink transition-colors group-hover:text-titanium-700">
+                  {post.title}
+                </h3>
+                <p className="mt-3 text-sm leading-relaxed">{post.excerpt}</p>
+                <span className="mt-auto inline-flex items-center gap-2 pt-8 font-mono text-[11px] uppercase tracking-[0.12em] text-ink">
+                  Read article
+                  <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-1" aria-hidden="true" />
+                </span>
+              </Link>
+            </StaggerItem>
+          ))}
+        </Stagger>
+      </Section>
+
+      {/* One partner — the single point of contact */}
+      <Section tone="ink" grid>
+        <div className="mx-auto max-w-4xl text-center">
+          <Reveal>
+            <p className="eyebrow text-champagne">Single point of contact</p>
+          </Reveal>
+          <ScrollFallText
+            text={partnership.title}
+            as="h2"
+            className="display-2 mt-5 text-champagne-100"
+          />
+          <Reveal delay={0.15}>
+            <p className="mx-auto mt-7 max-w-2xl text-lg leading-relaxed text-champagne-600">
+              {partnership.body}
+            </p>
+          </Reveal>
+          <Reveal delay={0.25}>
+            <p className="mx-auto mt-9 max-w-xl border-t border-champagne/25 pt-7 font-heading text-lg font-bold uppercase tracking-tight text-champagne-100 md:text-xl">
+              {partnership.closing}
+            </p>
+          </Reveal>
+        </div>
+      </Section>
+
+      {/* CTA */}
+      <Section>
+        <div className="relative overflow-hidden rounded-3xl bg-ink grid-paper-inverse px-8 py-16 md:px-16 md:py-24">
+          <div
+            aria-hidden="true"
+            className="absolute -right-24 -top-24 size-96 rounded-full bg-champagne/10 blur-3xl"
+          />
+          <div className="relative grid items-center gap-10 lg:grid-cols-12">
+            <div className="lg:col-span-8">
+              <Reveal>
+                <p className="eyebrow text-champagne">Next step</p>
+              </Reveal>
+              <RevealText
+                as="h2"
+                text="Bring us a bottleneck. We'll bring the drawings."
+                delay={0.05}
+                className="display-2 mt-5 text-champagne-100"
+              />
+              <Reveal delay={0.15}>
+                <p className="mt-5 max-w-xl text-lg leading-relaxed text-champagne-600">
+                  A 30-minute call with an engineer — not a salesperson — to scope what
+                  automation can do for your plant.
+                </p>
+              </Reveal>
+            </div>
+            <Reveal delay={0.2} className="lg:col-span-4">
+              <div className="flex flex-col items-start gap-3 lg:items-end">
+                <Button asChild size="lg" className="w-full rounded-full bg-champagne text-ink hover:bg-white sm:w-auto">
+                  <a href={company.whatsappHref} target="_blank" rel="noopener noreferrer">
+                    WhatsApp an Engineer
+                    <ArrowRight className="size-4" aria-hidden="true" />
+                  </a>
+                </Button>
+                <Button
+                  asChild
+                  size="lg"
+                  variant="outline"
+                  className="w-full rounded-full border-champagne/30 bg-transparent text-champagne-100 hover:bg-champagne/10 hover:text-white sm:w-auto"
+                >
+                  <Link href="/contact">Send a Brief</Link>
+                </Button>
+              </div>
+            </Reveal>
           </div>
         </div>
-      </section>
-    </div>
+      </Section>
+    </>
   );
 }
