@@ -1,106 +1,255 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ============================================================
+   ASKworX — GLOBAL THEME
+   Palette sampled directly from public/logo.png (the cloud mark):
+     darkest  rgb(65, 62, 56)    #413E38   graphite
+     average  rgb(129, 123, 113) #817B71   titanium
+     lightest rgb(229, 223, 207) #E5DFCF   champagne
+   A warm metallic neutral system. White-dominant, WCAG AA verified.
+   ============================================================ */
 
 @theme {
-  --font-heading: 'Outfit', sans-serif;
-  --font-body: 'Inter', sans-serif;
+  /* —— Brand: straight from the logo —— */
+  --color-graphite:    #413E38;  /* logo darkest  */
+  --color-titanium:    #817B71;  /* logo average  */
+  --color-champagne:   #E5DFCF;  /* logo lightest */
+
+  /* —— Derived ramp —— */
+  --color-ink:         #1C1A17;  /* body headings — 17.4:1 on white */
+  --color-graphite-700:#2E2C27;
+  --color-titanium-700:#6B655C;  /* accessible titanium — 5.8:1 on white */
+  --color-titanium-300:#B8B0A2;
+  --color-champagne-600:#C9C2B4;
+  --color-champagne-100:#F3F0E9;
+
+  /* —— Surfaces —— */
+  --color-paper:       #FAF9F7;  /* warm off-white section band */
+  --color-line:        #E7E4DE;  /* hairline rules */
+  --color-line-strong: #D5D0C6;
+
+  /* —— Text —— */
+  --color-body-text:   #57534C;  /* 7.4:1 on white */
+  --color-muted-text:  #7A746B;
+
+  /* —— Fonts (Roboto family) —— */
+  --font-heading: var(--font-roboto-condensed), "Roboto Condensed", sans-serif;
+  --font-body:    var(--font-roboto), Roboto, system-ui, sans-serif;
+  --font-mono:    var(--font-roboto-mono), "Roboto Mono", monospace;
+  --font-sans:    var(--font-roboto), Roboto, system-ui, sans-serif;
+}
+
+/* —— shadcn/ui token bridge —— */
+:root {
+  --radius: 0.75rem;
+  --background: #FFFFFF;
+  --foreground: #1C1A17;
+  --card: #FFFFFF;
+  --card-foreground: #1C1A17;
+  --popover: #FFFFFF;
+  --popover-foreground: #1C1A17;
+  --primary: #1C1A17;
+  --primary-foreground: #FAF9F7;
+  --secondary: #F3F0E9;
+  --secondary-foreground: #2E2C27;
+  --muted: #FAF9F7;
+  --muted-foreground: #7A746B;
+  --accent: #E5DFCF;
+  --accent-foreground: #2E2C27;
+  --destructive: #A8322A;
+  --border: #E7E4DE;
+  --input: #D5D0C6;
+  --ring: #6B655C;
+}
+
+.dark {
+  --background: #1C1A17;
+  --foreground: #F3F0E9;
+  --card: #2E2C27;
+  --card-foreground: #F3F0E9;
+  --popover: #2E2C27;
+  --popover-foreground: #F3F0E9;
+  --primary: #E5DFCF;
+  --primary-foreground: #1C1A17;
+  --secondary: #413E38;
+  --secondary-foreground: #F3F0E9;
+  --muted: #2E2C27;
+  --muted-foreground: #B8B0A2;
+  --accent: #413E38;
+  --accent-foreground: #E5DFCF;
+  --destructive: #E5766B;
+  --border: #413E38;
+  --input: #413E38;
+  --ring: #B8B0A2;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
 }
 
 @layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html { scroll-behavior: smooth; }
+  }
+
   body {
-    @apply bg-black text-white selection:bg-white selection:text-black;
+    @apply bg-background text-body-text;
     font-family: var(--font-body);
+    font-synthesis-weight: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-heading);
+    @apply text-ink text-balance;
+  }
+
+  /* Visible focus for every interactive element */
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible,
+  [tabindex]:focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  ::selection {
+    background: var(--color-ink);
+    color: #fff;
+  }
+}
+
+/* Reduced motion — fully stops loops instead of speeding them up */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 
 @layer components {
-  .titanium-text {
-    @apply bg-clip-text text-transparent bg-gradient-to-br from-white via-white to-white/40;
-  }
-
+  /* —— Layout rhythm —— */
   .container-custom {
-    @apply max-w-[1280px] mx-auto px-[48px] overflow-hidden;
+    @apply w-full max-w-[1280px] mx-auto px-5 md:px-8 lg:px-12;
   }
 
-  @media (max-width: 768px) {
-    .container-custom {
-      @apply px-[20px];
-    }
-  }
-
-  /* Section Padding */
   .section-padding {
-    @apply py-[120px];
+    @apply py-16 md:py-24 lg:py-32;
   }
 
-  @media (max-width: 1024px) {
-    .section-padding {
-      @apply py-[80px];
-    }
+  /* —— Type scale —— */
+  .display-1 {
+    @apply font-heading font-extrabold uppercase tracking-tight leading-[0.95]
+           text-[clamp(2.5rem,6vw,5rem)];
   }
 
-  @media (max-width: 768px) {
-    .section-padding {
-      @apply py-[60px];
-    }
+  .display-2 {
+    @apply font-heading font-extrabold uppercase tracking-tight leading-[1.02]
+           text-[clamp(2rem,4.5vw,3.5rem)];
   }
 
-  .card-border {
-    @apply border border-white/8 transition-all duration-300;
+  .eyebrow {
+    @apply font-mono text-[11px] tracking-[0.22em] uppercase text-titanium-700;
   }
 
-  .card-border:hover {
-    @apply border-white/20 shadow-[0_0_30px_rgba(255,255,255,0.05)];
+  .lead {
+    @apply text-lg md:text-xl leading-relaxed text-body-text;
   }
 
-  .badge {
-    @apply text-[10px] font-bold tracking-[0.4em] text-white/50 mb-4 inline-block uppercase;
+  /* —— Signature: engineering-drawing grid, in logo titanium —— */
+  .grid-paper {
+    background-image:
+      linear-gradient(to right, rgba(129, 123, 113, 0.09) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(129, 123, 113, 0.09) 1px, transparent 1px);
+    background-size: 34px 34px;
   }
 
-  .hr-separator {
-    @apply border-none border-t border-white/8 my-0;
+  .grid-paper-inverse {
+    background-image:
+      linear-gradient(to right, rgba(229, 223, 207, 0.07) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(229, 223, 207, 0.07) 1px, transparent 1px);
+    background-size: 34px 34px;
   }
 
-  /* Typography for Section Headings */
-  .section-h2 {
-    @apply text-[clamp(2.5rem,5vw,5rem)] font-black text-white italic uppercase leading-none mb-4;
+  /* Brushed-metal sheen, echoing the logo's finish.
+     Lightest stop stays at #8F887C (3.5:1) so display text clears AA-Large. */
+  .titanium-sheen {
+    background-image: linear-gradient(
+      104deg,
+      #2E2C27 0%, #55504A 22%, #8F887C 44%,
+      #6B655C 64%, #3A3731 86%, #2E2C27 100%
+    );
+    @apply bg-clip-text text-transparent;
   }
 
-  .section-subtitle {
-    @apply text-lg md:text-xl text-[#94A3B8] leading-relaxed max-w-2xl mb-16;
+  /* Inverse sheen for use on the ink panels */
+  .titanium-sheen-dark {
+    background-image: linear-gradient(
+      104deg,
+      #B8B0A2 0%, #E5DFCF 26%, #FFFFFF 46%,
+      #E5DFCF 68%, #B8B0A2 100%
+    );
+    @apply bg-clip-text text-transparent;
+  }
+
+  .hairline-grid {
+    @apply gap-px bg-line border border-line;
   }
 }
 
-/* Custom Cursor & Scrollbar */
-#custom-cursor {
-  @apply fixed top-0 left-0 w-8 h-8 pointer-events-none z-[9999] mix-blend-difference bg-white rounded-full transition-transform duration-75 ease-out scale-0;
+@utility text-balance {
+  text-wrap: balance;
 }
 
-#scroll-progress {
-  @apply fixed top-0 left-0 h-[2px] bg-white z-[9999] transition-all;
-}
-
-/* Marquee Animation */
-@keyframes marquee {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
-}
-
-.animate-marquee {
-  display: flex;
-  width: fit-content;
-  animation: marquee 40s linear infinite;
-}
-
-.animate-marquee:hover {
-  animation-play-state: paused;
-}
-
-/* Noise Texture */
-.noise-overlay {
-  @apply fixed inset-0 pointer-events-none z-[9998] opacity-[0.03];
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+/**
+ * Trims the half-leading above a text block's first line.
+ *
+ * Body copy carries far more leading than a display heading, so two columns
+ * whose boxes start on the same line still render their first lines several
+ * pixels apart. This removes that gap so the description optically aligns
+ * with the heading beside it. Computed from the element's own metrics, not a
+ * magic number, so it holds if the type scale changes.
+ */
+@utility optical-first-line {
+  margin-top: calc((1em - 1lh) / 2);
 }
