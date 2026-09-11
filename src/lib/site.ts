@@ -14,9 +14,11 @@ export const company = {
   email: "contact@askworx.in",
   phone: "+91 90301 08949",
   phoneHref: "tel:+919030108949",
-  whatsapp: "919030108949",
-  whatsappHref:
-    "https://wa.me/919030108949?text=Hello%20ASKworX%2C%20I%27d%20like%20to%20discuss%20an%20automation%20project.",
+  // WhatsApp goes to the ASKworX bot, not the phone above. The prefilled
+  // "Hi" is what the bot answers with its welcome menu; a longer opening
+  // line falls through to its general-enquiry flow instead.
+  whatsapp: "917892943426",
+  whatsappHref: "https://wa.me/917892943426?text=Hi",
   signature: "Built on experience. Delivered with innovation.",
   closing: "Built for Today. Ready for Tomorrow.",
   founder: "A. Shravan Kumar",
